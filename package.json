@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "commit": "git cz"
+    "prepare": "husky install",
+    "commit": "node commit-wrapper.js"
   },
   "config": {
     "commitizen": {
@@ -31,6 +32,7 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
     "husky": "^9.1.7",
+    "inquirer": "^12.5.0",
     "vite": "^6.2.0"
   }
 }
