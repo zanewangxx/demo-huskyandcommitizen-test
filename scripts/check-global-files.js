@@ -1,6 +1,17 @@
 #!/usr/bin/env node
 import { execSync } from 'child_process';
 import inquirer from 'inquirer';
+import fs from 'fs';
+
+// Load the config file that contains the list of global file paths
+const configFile = 'global-files.config.json';
+let globalFilesConfig = [];
+try {
+  globalFilesConfig = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+} catch (error) {
+  console.error(`Error loading ${configFile}:`, error);
+  process.exit(1);
+}
 
 (async () => {
   try {
@@ -8,35 +19,24 @@ import inquirer from 'inquirer';
     const stdout = execSync('git diff --cached --name-only', { encoding: 'utf8' });
     const stagedFiles = stdout.split('\n').filter(Boolean);
     
-    // Check if any staged file is in the global folder
-    const globalFiles = stagedFiles.filter(file => file.includes('/global/') || file.startsWith('src/global/'));
+    // Check if any staged file is in the global files list from the config
+    const modifiedGlobalFiles = stagedFiles.filter(file =>
+      globalFilesConfig.includes(file)
+    );
     
-    if (globalFiles.length > 0) {
+    if (modifiedGlobalFiles.length > 0) {
       console.log('Detected changes in global files:');
-      console.log(globalFiles.join('\n'));
-
-      // Optionally, remove the TTY check so the prompt always appears:
-      // if (!process.stdin.isTTY) {
-      //   console.log('Non-interactive environment detected; aborting commit.');
-      //   process.exit(1);
-      // }
+      console.log(modifiedGlobalFiles.join('\n'));
       
-      let proceed;
-      try {
-        // Prompt the user for confirmation
-        const answers = await inquirer.prompt([
-          {
-            type: 'confirm',
-            name: 'proceed',
-            message: '🚨Are you sure you want to proceed with this commit?🚨',
-            default: false
-          }
-        ]);
-        proceed = answers.proceed;
-      } catch (promptError) {
-        console.log('Prompt was closed unexpectedly; aborting commit.');
-        process.exit(1);
-      }
+      // Prompt the user for confirmation
+      const { proceed } = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'proceed',
+          message: '🚨 Are you sure you want to proceed with this commit? 🚨',
+          default: false
+        }
+      ]);
       
       if (!proceed) {
         console.log('Commit aborted by user.');

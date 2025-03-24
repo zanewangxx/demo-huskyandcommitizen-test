@@ -1,6 +1,17 @@
 #!/usr/bin/env node
 import { execSync, spawn } from 'child_process';
 import inquirer from 'inquirer';
+import fs from 'fs';
+
+// Load the configuration file that lists global file paths
+const configFile = 'global-files.config.json';
+let globalFilesConfig = [];
+try {
+  globalFilesConfig = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+} catch (error) {
+  console.error(`Error loading ${configFile}:`, error);
+  process.exit(1);
+}
 
 (async () => {
   try {
@@ -8,16 +19,16 @@ import inquirer from 'inquirer';
     const stdout = execSync('git diff --cached --name-only', { encoding: 'utf8' });
     const stagedFiles = stdout.split('\n').filter(Boolean);
 
-    // Adjust this logic to match your project’s global folder location:
-    const globalFiles = stagedFiles.filter(file =>
-      file.includes('/global/') || file.startsWith('src/global/')
+    // Check if any staged file is in our global files list from the config
+    const modifiedGlobalFiles = stagedFiles.filter(file =>
+      globalFilesConfig.includes(file)
     );
 
-    if (globalFiles.length > 0) {
+    if (modifiedGlobalFiles.length > 0) {
       console.log('Detected changes in global files:');
-      console.log(globalFiles.join('\n'));
+      console.log(modifiedGlobalFiles.join('\n'));
 
-      // Prompt the user for confirmation with a red warning light emoji
+      // Prompt the user for confirmation
       const { proceed } = await inquirer.prompt([
         {
           type: 'confirm',
@@ -41,3 +52,4 @@ import inquirer from 'inquirer';
     process.exit(1);
   }
 })();
+

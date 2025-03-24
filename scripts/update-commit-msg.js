@@ -11,8 +11,8 @@ if (!commitMsgFile) {
 let commitMsg = fs.readFileSync(commitMsgFile, { encoding: 'utf8' });
 
 // For example, prepend an emoji if not already present
-if (!commitMsg.startsWith('✨')) {
-  commitMsg = '✨ ' + commitMsg;
+if (!commitMsg.startsWith('🚩')) {
+  commitMsg = '🚩 ' + commitMsg;
 }
 
 fs.writeFileSync(commitMsgFile, commitMsg, { encoding: 'utf8' });
