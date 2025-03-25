@@ -8,7 +8,7 @@ let globalFilesConfig = [];
 try {
   globalFilesConfig = JSON.parse(fs.readFileSync(configFile, 'utf8'));
 } catch (error) {
-  // choose to handle or ignore the error if the config file isn't present.
+  // Handle or ignore the error if the config file isn't present.
 }
 
 async function prompter(inquirer, commit) {
@@ -17,7 +17,6 @@ async function prompter(inquirer, commit) {
     const stdout = execSync('git diff --cached --name-only', { encoding: 'utf8' });
     const stagedFiles = stdout.split('\n').filter(Boolean);
     
-    // Check against the config file if provided
     const modifiedGlobalFiles = stagedFiles.filter(file =>
       globalFilesConfig.length
         ? globalFilesConfig.includes(file)
@@ -28,7 +27,6 @@ async function prompter(inquirer, commit) {
       console.log('Detected changes in global files:');
       console.log(modifiedGlobalFiles.join('\n'));
       
-      // Prompt the user for confirmation
       const { proceed } = await inquirer.prompt([
         {
           type: 'confirm',
@@ -48,7 +46,7 @@ async function prompter(inquirer, commit) {
     process.exit(1);
   }
 
-  // Now define commit questions.
+  // Define commit questions.
   const questions = [
     {
       type: 'list',
@@ -65,14 +63,15 @@ async function prompter(inquirer, commit) {
       name: 'subject',
       message: 'Enter a commit subject:'
     }
-    // more questions (scope, body, footer, etc.)
+    // more questions (scope, body, footer, etc.) can be added here.
   ];
 
   inquirer.prompt(questions).then(answers => {
-    // Format the commit message as desired.
-    const commitMessage = `${answers.type}: ${answers.subject}`.trim();
+    // Append a notice emoji to the commit message.
+    const commitMessage = `⚠️ ${answers.type}: ${answers.subject}`.trim();
     commit(commitMessage);
   });
 }
 
 module.exports = { prompter };
+
