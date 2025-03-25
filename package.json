@@ -9,11 +9,11 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "prepare": "husky install",
-    "commit": "node commit-wrapper.js"
+    "commit": "git cz"
   },
   "config": {
     "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
+      "path": "./cz-adapter"
     }
   },
   "dependencies": {
